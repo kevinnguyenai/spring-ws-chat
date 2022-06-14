@@ -25,7 +25,7 @@ public class ChatConfig {
 
 	@Autowired
 	private ChatProperties chatProperties;
-	
+
 	@Bean
 	@Description("Tracks user presence (join / leave) and broacasts it to all connected users")
 	public PresenceEventListener presenceEventListener(SimpMessagingTemplate messagingTemplate) {
@@ -55,10 +55,15 @@ public class ChatConfig {
 		checker.setProfanities(chatProperties.getDisallowedWords());
 		return checker;
 	}
-	
+
 	@Bean(initMethod = "start", destroyMethod = "stop")
 	@Description("Embedded Redis used by Spring Session")
-	public RedisServer redisServer(@Value("${redis.embedded.port}") int port)  throws IOException {
-		return new RedisServer(port);
+	public RedisServer redisServer(@Value("${redis.embedded.port}") int port) throws IOException {
+		return RedisServer.builder()
+				.port(port)
+				.setting("maxheap 128M")
+				.setting("daemonize no")
+				.setting("appendonly no")
+				.build();
 	}
 }
